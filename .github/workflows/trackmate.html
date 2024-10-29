@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Registration System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background-color: #f7f7f7;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            transition: background 0.3s;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background-color: #d1d1d1;
+        }
+
+        .active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="tel"]:focus {
+            border: 1px solid #4CAF50;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .qr-code, .profile {
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .download-link {
+            margin-top: 10px;
+            display: inline-block;
+            color: #007bff;
+        }
+
+        .toggle-button {
+            margin-top: 10px;
+        }
+
+        .prompt {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #888;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="home">🏠 Home</div>
+            <div class="tab" data-tab="user-registration">📝 Register User</div>
+            <div class="tab" data-tab="user-profile">👤 Profile</div>
+            <div class="tab disabled" data-tab="item-registration">📦 Register Item</div>
+        </div>
+
+        <div id="home" class="tab-content">
+            <h1>Welcome to the Item Registration System</h1>
+            <p>This system allows you to register users and items, and generate QR codes for easy tracking.</p>
+        </div>
+
+        <div id="user-registration" class="tab-content hidden">
+            <h1>User Registration</h1>
+            <div class="input-section">
+                <label for="userName">Name:</label>
+                <input type="text" id="userName" required>
+
+                <label for="userContact">Contact Number:</label>
+                <input type="tel" id="userContact" required>
+
+                <button id="registerUser">Register User</button>
+            </div>
+            <p id="registrationMessage" class="hidden"></p>
+        </div>
+
+        <div id="user-profile" class="tab-content hidden">
+            <h1>User Profile</h1>
+            <p><strong>Name:</strong> <span id="profileName" class="hidden"></span></p>
+            <p><strong>Contact:</strong> <span id="profileContact" class="hidden"></span></p>
+            <button id="toggleContact" class="toggle-button hidden">🔔 Turn On Item Loss Notification</button>
+            <h2>Registered Item:</h2>
+            <p><strong>Item Name:</strong> <span id="registeredItemName" class="hidden"></span></p>
+            <p><strong>Item Type:</strong> <span id="registeredItemType" class="hidden"></span></p>
+            <p><strong>Color:</strong> <span id="registeredItemColor" class="hidden"></span></p>
+            <p><strong>Brand:</strong> <span id="registeredItemBrand" class="hidden"></span></p>
+            <p><strong>QR Code:</strong></p>
+            <div id="registeredQRCode" class="hidden"></div>
+        </div>
+
+        <div id="item-registration" class="tab-content hidden">
+            <h1>Item Registration</h1>
+            <div class="input-section">
+                <label for="ownerName">Owner Name:</label>
+                <input type="text" id="ownerName" required>
+                
+                <label for="itemName">Item Name:</label>
+                <input type="text" id="itemName" required>
+                
+                <label for="itemType">Item Type:</label>
+                <input type="text" id="itemType" required>
+                
+                <label for="color">Color:</label>
+                <input type="text" id="color" required>
+                
+                <label for="brand">Brand:</label>
+                <input type="text" id="brand" required>
+                
+                <label for="ownerContactInput">Owner Contact Number:</label>
+                <input type="tel" id="ownerContactInput" required>
+                
+                <button id="register">Register Item</button>
+            </div>
+            <div id="qr-code" class="qr-code hidden"></div>
+            <div class="download-link hidden">
+                <a id="downloadQRCode" href="#" download="qrcode.png">📥 Download QR Code</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let userDetails = {}; // Store user details
+            let itemDetails = {}; // Store item details
+
+            // Tab navigation
+            $(".tab").click(function() {
+                const tabId = $(this).data("tab");
+                if ($(this).hasClass("disabled")) return; // Prevent clicking if disabled
+
+                $(".tab").removeClass("active");
+                $(this).addClass("active");
+                $(".tab-content").addClass("hidden");
+                $("#" + tabId).removeClass("hidden");
+
+                // Show user details in profile if available
+                if (tabId === "user-profile" && userDetails.name) {
+                    $("#profileName").removeClass("hidden").text(userDetails.name);
+                    $("#profileContact").removeClass("hidden").text(userDetails.contact);
+                    
+                    // Show item details if available
+                    if (itemDetails.name) {
+                        $("#registeredItemName").removeClass("hidden").text(itemDetails.name);
+                        $("#registeredItemType").removeClass("hidden").text(itemDetails.type);
+                        $("#registeredItemColor").removeClass("hidden").text(itemDetails.color);
+                        $("#registeredItemBrand").removeClass("hidden").text(itemDetails.brand);
+                        $("#registeredQRCode").removeClass("hidden").html(itemDetails.qrCode);
+                    } else {
+                        $("#registeredItemName").addClass("hidden");
+                        $("#registeredItemType").addClass("hidden");
+                        $("#registeredItemColor").addClass("hidden");
+                        $("#registeredItemBrand").addClass("hidden");
+                        $("#registeredQRCode").addClass("hidden");
+                    }
+                }
+            });
+
+            // User registration
+            $("#registerUser").click(function() {
+                const userName = $("#userName").val();
+                const userContact = $("#userContact").val();
+
+                if (userName && userContact) {
+                    userDetails = { name: userName, contact: userContact };
+                    $("#registrationMessage").removeClass("hidden").text("User registered successfully!");
+
+                    // Enable item registration tab
+                    $(".tab[data-tab='item-registration']").removeClass("disabled");
+                    
+                    // Clear input fields
+                    $("#userName").val('');
+                    $("#userContact").val('');
+                } else {
+                    alert("Please fill out all fields.");
+                }
+            });
+
+            // Toggle contact display
+            let isContactVisible = false;
+            $("#toggleContact").click(function() {
+                isContactVisible = !isContactVisible;
+                const ownerContact = $("#ownerContactInput").val();
+                if (isContactVisible) {
+                    $("#profileContact").removeClass("hidden").text(ownerContact);
+                    $(this).text("🔕 Turn Off Item Loss Notification");
+                } else {
+                    $("#profileContact").addClass("hidden");
+                    $(this).text("🔔 Turn On Item Loss Notification");
+                }
+            });
+
+            // Item registration
+            $("#register").click(function() {
+                const itemName = $("#itemName").val();
+                const itemType = $("#itemType").val();
+                const color = $("#color").val();
+                const brand = $("#brand").val();
+                const ownerContact = $("#ownerContactInput").val();
+
+                if (userDetails.name && itemName && itemType && color && brand && ownerContact) {
+                    // Store item details
+                    itemDetails = {
+                        name: itemName,
+                        type: itemType,
+                        color: color,
+                        brand: brand,
+                    };
+
+                    // Display item profile in user profile section
+                    $("#registeredItemName").removeClass("hidden").text(itemDetails.name);
+                    $("#registeredItemType").removeClass("hidden").text(itemDetails.type);
+                    $("#registeredItemColor").removeClass("hidden").text(itemDetails.color);
+                    $("#registeredItemBrand").removeClass("hidden").text(itemDetails.brand);
+
+                    // Generate a unique URL for the item profile
+                    const itemProfileURL = `#profile-section?name=${encodeURIComponent(itemName)}&type=${encodeURIComponent(itemType)}&color=${encodeURIComponent(color)}&brand=${encodeURIComponent(brand)}&contact=${encodeURIComponent(ownerContact)}`;
+
+                    // Show QR Code
+                    const qrCodeElement = $("#generatedQRCode").empty().qrcode({
+                        text: itemProfileURL,
+                        width: 128,
+                        height: 128,
+                        render: 'canvas'
+                    });
+
+                    // Create a downloadable link
+                    const canvas = document.querySelector('#generatedQRCode canvas');
+                    const downloadLink = document.getElementById('downloadQRCode');
+                    downloadLink.href = canvas.toDataURL("image/png");
+
+                    // Show QR code and download link
+                    $("#qr-code").removeClass("hidden");
+                    $("#downloadQRCode").removeClass("hidden");
+
+                    // Clear input fields
+                    $("#itemName").val('');
+                    $("#itemType").val('');
+                    $("#color").val('');
+                    $("#brand").val('');
+                    $("#ownerContactInput").val('');
+
+                    // Reset the prompt message
+                    $(".prompt").addClass("hidden");
+                } else {
+                    alert("Please fill out all fields.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
